@@ -1,6 +1,6 @@
 ---
 name: instalar-kit-edicao-video
-description: Instala do zero o kit completo de edição de vídeo com AI: Hyperframes, Impeccable, Taste Skill, Remotion, FFmpeg e Whisper, com pré-requisitos e verificação final.
+description: "Instala do zero o kit completo de edição de vídeo com AI: Hyperframes, Impeccable, Taste Skill, Remotion, FFmpeg e Whisper, com pré-requisitos e verificação final."
 ---
 
 # Instalar o Kit de Edição de Vídeo
@@ -11,10 +11,10 @@ O objetivo é deixar a máquina da pessoa pronta, do zero, com:
 
 | # | Item | O que é | Tipo |
 |---|------|---------|------|
-| 0 | Pré-requisitos | Node.js 22+, Git, Python 3.11/3.12 | Programas |
+| 0 | Pré-requisitos | Node.js 22+, Git, Python 3.11+ | Programas |
 | 1 | Hyperframes (HeyGen) | Vídeo escrito em HTML + GSAP, renderizado em MP4 | Skills + CLI |
 | 2 | Impeccable | Vocabulário de design: polish, bolder, critique, audit | Skill |
-| 3 | Taste Skill | Anti-"AI slop": layout, tipografia e motion com bom gosto | Skills |
+| 3 | Taste Skill | Anti-"AI slop": layout, tipografia e motion com bom gosto | Skill |
 | 4 | Remotion | Vídeo programático com React | Skills |
 | 5 | FFmpeg | Motor de corte, conversão, áudio e encode | Programa + skill |
 | 6 | Whisper | Transcrição e legendas automáticas | Programa |
@@ -25,11 +25,12 @@ O objetivo é deixar a máquina da pessoa pronta, do zero, com:
 ## Regras antes de começar
 
 1. **Onde rodar:** os comandos rodam no terminal do computador da pessoa. Se você tem um shell nessa máquina (por exemplo `device_bash` ou o Bash do Claude Code), rode você mesmo. Se não tem, entregue os comandos em blocos prontos para copiar e colar, um passo por vez, e peça para a pessoa colar a saída.
-2. **Peça confirmação uma vez** antes de instalar programas no sistema (winget/brew/apt). Mostre a lista do que falta instalar e o tamanho aproximado (o Whisper com PyTorch passa de 2 GB).
+2. **Peça confirmação uma vez** antes de instalar programas no sistema (winget/brew/apt). Mostre a lista do que falta instalar e o tamanho aproximado (o Whisper com PyTorch para CPU fica em torno de 1 GB; com a versão para GPU NVIDIA passa de 2 GB).
 3. **Não reinstale o que já existe.** Sempre detecte primeiro (Passo 1) e instale só o que está faltando ou desatualizado.
 4. **Escopo das skills:** por padrão instale de forma **global** (`-g`), para valerem em qualquer projeto. Se a pessoa preferir só no projeto atual, tire o `-g` e rode dentro da pasta do projeto.
-5. **Nunca peça senhas.** Se um comando pedir senha de administrador (sudo, UAC), a própria pessoa digita.
-6. Em caso de erro, leia a mensagem, corrija a causa (ver "Problemas comuns") e tente de novo uma vez. Não fique repetindo o mesmo comando.
+5. **Agente:** os comandos usam `--agent claude-code`, que instala só para o Claude. Se a pessoa usa outro agente (Cursor, Codex etc.), troque o nome ou remova a flag. **Não use `--all`**: ele instala para dezenas de agentes ao mesmo tempo. Para pegar todas as skills de um repositório, use `--skill '*'`.
+6. **Nunca peça senhas.** Se um comando pedir senha de administrador (sudo, UAC), a própria pessoa digita.
+7. Em caso de erro, leia a mensagem, corrija a causa (ver "Problemas comuns") e tente de novo uma vez. Não fique repetindo o mesmo comando.
 
 ---
 
@@ -49,7 +50,7 @@ node --version; npm --version; git --version; python3 --version; ffmpeg -version
 
 Monte uma tabela "instalado / falta / versão antiga" e mostre para a pessoa. Critérios:
 - Node.js precisa ser **22 ou maior** (exigência do Hyperframes). Abaixo disso, atualizar.
-- Python: **3.11 ou 3.12** são os mais seguros para o Whisper.
+- Python: **3.11 ou maior** (testado com sucesso no 3.13).
 - FFmpeg: qualquer versão recente com libx264 e AAC.
 
 ---
@@ -88,15 +89,24 @@ Confirme: `node --version` deve mostrar v22 ou maior, e `ffmpeg -version` deve r
 Vídeo escrito como página HTML com timeline GSAP; a CLI captura cada frame no Chrome headless e codifica com FFmpeg. Requer Node 22+ e FFmpeg.
 
 ```bash
-npx -y skills add heygen-com/hyperframes -g -y --all
+npx -y skills add heygen-com/hyperframes -g -y --skill '*' --agent claude-code
 ```
-`--all` instala o núcleo e todos os workflows sem abrir o seletor. Skills principais que ficam disponíveis: `/hyperframes`, `/hyperframes-core`, `/hyperframes-cli`, `/hyperframes-animation`, `/hyperframes-media` (TTS, transcrição com Whisper, remoção de fundo, legendas) e `/hyperframes-registry`.
+Instala todas as skills do pacote (hoje: `hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, `slideshow`, `figma`, `remotion-to-hyperframes`, `reverse-any-video`, `style-sampling`). Comece sempre pela `/hyperframes`, que direciona para o fluxo certo e baixa outros workflows sob demanda.
 
-Prepare o Chrome de renderização e verifique o ambiente:
+Baixe o Chrome de renderização e verifique o ambiente:
 ```bash
+npx -y hyperframes browser ensure
 npx -y hyperframes doctor
 ```
-Se o doctor apontar algo faltando (FFmpeg, unzip, Chrome headless), corrija e rode de novo até ficar tudo verde.
+**Como ler o doctor:** o que importa é Node, FFmpeg, FFprobe, Chrome e unzip com ✓. Os itens marcados como *optional* (whisper-cpp, TTS Kokoro, BGM MusicGen, Docker) podem ficar com ✗ sem problema, porque o kit funciona sem eles. Só instale se a pessoa pedir voz local, música gerada ou render em Docker.
+
+**Teste de render** (prova de que está tudo funcionando):
+```bash
+npx -y hyperframes init teste-kit --non-interactive --resolution portrait
+cd teste-kit
+npx -y hyperframes render --quality draft --output teste.mp4
+```
+Deve gerar um `teste.mp4` de 1080x1920 em menos de um minuto.
 
 Para manter atualizado depois: `npx hyperframes skills check` e `npx hyperframes skills update <nome>`.
 
@@ -115,22 +125,18 @@ Alternativa no Claude Code (plugin):
 ```
 e depois abrir `/plugin` e instalar Impeccable.
 
-Depois de instalar, reinicie o Claude Code e rode `/impeccable init` dentro do projeto. Para atualizar: `npx impeccable update`.
+O instalador coloca a skill, alguns agentes em `~/.claude/agents` e um hook de design em `~/.claude/settings.json`. Avise a pessoa disso. Depois de instalar, reinicie o Claude Code e rode `/impeccable init` **no chat do agente** (não no terminal), dentro do projeto. Para atualizar: `npx impeccable update`.
 
 ---
 
 ## Passo 5 — Taste Skill (Leonxlnx/taste-skill)
 
-Conjunto de skills anti-"AI slop": controla variação de layout, intensidade de motion e densidade visual, evitando visual genérico.
+Skill anti-"AI slop": layout, tipografia, motion e acabamento de nível profissional, evitando visual genérico.
 
 ```bash
-npx -y skills add Leonxlnx/taste-skill -g -y --all
+npx -y skills add Leonxlnx/taste-skill -g -y --skill '*' --agent claude-code
 ```
-Se a pessoa quiser só a principal:
-```bash
-npx -y skills add Leonxlnx/taste-skill -g -y --skill design-taste-frontend
-```
-Outras úteis do pacote: `gpt-taste` (UX/UI + motion GSAP), `minimalist-ui`, `high-end-visual-design`.
+Hoje o repositório traz uma única skill, a `design-taste-frontend` (v2.5). Se o autor publicar outras, o `--skill '*'` já pega todas. Para ver o que existe: `npx skills add Leonxlnx/taste-skill --list`.
 
 ---
 
@@ -139,9 +145,9 @@ Outras úteis do pacote: `gpt-taste` (UX/UI + motion GSAP), `minimalist-ui`, `hi
 Vídeo programático em React. As skills oficiais ensinam timing, mídia, legendas e render.
 
 ```bash
-npx -y skills add remotion-dev/skills -g -y
+npx -y skills add remotion-dev/skills -g -y --skill '*' --agent claude-code
 ```
-Skill principal: `/remotion-best-practices` (abrange as outras). Dentro de um projeto Remotion também funciona `npx remotion skills add` e, para atualizar, `npx remotion skills update`.
+Instala cerca de 15 skills (`remotion-best-practices`, `remotion-create`, `remotion-render`, `remotion-studio`, `remotion-captions`, `remotion-multimedia` e outras). A principal é `/remotion-best-practices`, que abrange as demais. Dentro de um projeto Remotion também funciona `npx remotion skills add` e, para atualizar, `npx remotion skills update`.
 
 Para criar um projeto de teste (opcional):
 ```bash
@@ -156,11 +162,11 @@ cd meu-video && npm install && npm run dev
 O programa FFmpeg já foi instalado no Passo 2. Agora adicione uma skill com receitas prontas (cortar, juntar, converter, extrair áudio, reenquadrar 16:9 → 9:16, GIF, normalizar áudio):
 
 ```bash
-npx -y skills add digitalsamba/claude-code-video-toolkit -g -y --skill ffmpeg
+npx -y skills add digitalsamba/claude-code-video-toolkit -g -y --skill ffmpeg --agent claude-code
 ```
 Se esse repositório não estiver disponível, use a alternativa:
 ```bash
-npx -y skills add TerminalSkills/skills -g -y --skill ffmpeg
+npx -y skills add TerminalSkills/skills -g -y --skill ffmpeg --agent claude-code
 ```
 Confirme também o ffprobe (vem junto): `ffprobe -version`.
 
@@ -173,8 +179,9 @@ Whisper da OpenAI, roda local e de graça. Precisa de Python e FFmpeg.
 **Windows:**
 ```powershell
 python -m pip install -U pip
-python -m pip install -U openai-whisper
+python -m pip install -U openai-whisper --extra-index-url https://download.pytorch.org/whl/cpu
 ```
+O `--extra-index-url .../cpu` baixa o PyTorch só para CPU, que é bem menor. Se a pessoa tem placa NVIDIA e quer velocidade máxima, tire essa parte para instalar a versão com GPU.
 **macOS:**
 ```bash
 brew install openai-whisper
@@ -183,8 +190,9 @@ brew install openai-whisper
 
 **Linux:**
 ```bash
-pipx install openai-whisper
+pipx install openai-whisper --pip-args="--extra-index-url https://download.pytorch.org/whl/cpu"
 ```
+(sem GPU NVIDIA; com GPU, remova o `--pip-args`)
 
 Teste rápido (o primeiro uso baixa o modelo):
 ```bash
@@ -227,10 +235,10 @@ Entregue um resumo assim:
 | Node.js | ✅ | v22.x |
 | FFmpeg + ffprobe | ✅ | 7.x |
 | Whisper | ✅ | modelo small baixado |
-| Hyperframes | ✅ | doctor verde |
+| Hyperframes | ✅ | doctor ok + teste.mp4 renderizado |
 | Impeccable | ✅ | rodar /impeccable init no projeto |
-| Taste Skill | ✅ | 13 skills |
-| Remotion | ✅ | remotion-best-practices |
+| Taste Skill | ✅ | design-taste-frontend |
+| Remotion | ✅ | ~15 skills |
 | Skill FFmpeg | ✅ | |
 
 Finalize avisando: **reinicie o Claude Code / app do Claude** para as novas skills aparecerem, e sugira um primeiro teste (por exemplo: "crie um vídeo de 10 segundos com Hyperframes com um título animado").
@@ -241,8 +249,10 @@ Finalize avisando: **reinicie o Claude Code / app do Claude** para as novas skil
 
 - **"node não é reconhecido" / "ffmpeg not found" depois de instalar no Windows:** feche e abra o terminal. Se persistir, reinicie o computador (o winget atualiza o PATH só em novas sessões).
 - **Hyperframes recusa o Node:** versão abaixo de 22. Atualize com `winget upgrade OpenJS.NodeJS.LTS`, `brew upgrade node` ou NodeSource 22.
-- **`npx skills add` abre seletor interativo e trava:** confirme que usou `-y`. Se a flag `--all` não for aceita pela versão da CLI, rode sem ela e selecione todas no seletor.
-- **Whisper falha ao instalar no Python 3.13+:** instale o Python 3.12 e use `py -3.12 -m pip install openai-whisper` (Windows).
+- **`npx skills add` abre seletor interativo e trava:** confirme que usou `-y`. Se `--skill '*'` não for aceito pela versão da CLI, rode sem ele e selecione todas no seletor.
+- **`npx skills add` diz "No valid skills found" / "YAML parse error":** o `SKILL.md` daquele repositório tem erro no cabeçalho (geralmente um `:` sem aspas na `description`). Avise o autor; não é problema da máquina.
+- **Render do Hyperframes avisa "BeginFrame did not run":** o vídeo sai certo, só que mais devagar. Rode `npx hyperframes browser ensure` para baixar o chrome-headless-shell.
+- **Whisper falha ao instalar numa versão muito nova do Python:** instale o Python 3.12 e use `py -3.12 -m pip install openai-whisper` (Windows).
 - **Whisper muito lento:** use `--model small` ou `base`; sem GPU NVIDIA, os modelos grandes demoram muito.
 - **`hyperframes doctor` reclama de unzip (Linux):** `sudo apt install -y unzip`.
 - **Erro de permissão no npm global (macOS/Linux):** não use `sudo npm`; prefira `npx` (já usado aqui) ou configure o nvm.

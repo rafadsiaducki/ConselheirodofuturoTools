@@ -17,16 +17,16 @@ As skills seguem o padrão aberto de Agent Skills (`SKILL.md`) e funcionam no Cl
 Precisa ter o [Node.js](https://nodejs.org) instalado. No terminal:
 
 ```bash
-npx skills add rafadsiaducki/ConselheirodofuturoTools -g
+npx skills add rafadsiaducki/ConselheirodofuturoTools -g --agent claude-code
 ```
 
 Para instalar só uma skill específica:
 
 ```bash
-npx skills add rafadsiaducki/ConselheirodofuturoTools -g --skill instalar-kit-edicao-video
+npx skills add rafadsiaducki/ConselheirodofuturoTools -g --agent claude-code --skill instalar-kit-edicao-video
 ```
 
-Sem o `-g`, a skill é instalada só no projeto atual.
+Sem o `-g`, a skill é instalada só no projeto atual. Usa outro agente (Cursor, Codex…)? Troque `claude-code` pelo nome dele, ou remova `--agent` para escolher na hora.
 
 ### Opção 2 — Manual
 

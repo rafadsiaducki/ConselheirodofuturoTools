@@ -10,7 +10,25 @@ As skills seguem o padrão aberto de Agent Skills (`SKILL.md`) e funcionam no Cl
 |-------|-----------|
 | [`instalar-kit-edicao-video`](skills/instalar-kit-edicao-video/SKILL.md) | Prepara o computador do zero para editar vídeo com AI: instala Node.js, FFmpeg, Whisper e as skills Hyperframes, Impeccable, Taste Skill, Remotion e FFmpeg, com verificação final. Windows, macOS e Linux. |
 
-## Como instalar
+## Kit de Edição de Vídeo: instalação em um comando
+
+Instala tudo o que falta (Node.js, Git, Python, FFmpeg, Whisper, yt-dlp e as skills Hyperframes, Impeccable, Taste Skill, Remotion e FFmpeg). O que você já tiver aparece como **"ja esta instalado"**. No fim, mostra um resumo.
+
+**Windows:** aperte `Win + X` → **Terminal** e cole:
+
+```powershell
+irm https://raw.githubusercontent.com/rafadsiaducki/ConselheirodofuturoTools/main/instalar-kit.ps1 | iex
+```
+
+**macOS / Linux:** abra o Terminal e cole:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rafadsiaducki/ConselheirodofuturoTools/main/instalar-kit.sh | bash
+```
+
+Depois, feche e abra o Claude Code. Pode rodar de novo quando quiser: ele só confere e não reinstala nada.
+
+## Como instalar só as skills deste repositório
 
 ### Opção 1 — Comando único (recomendado)
 

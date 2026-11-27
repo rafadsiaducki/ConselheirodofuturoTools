@@ -22,7 +22,30 @@ O objetivo é deixar a máquina da pessoa pronta, do zero, com:
 
 ---
 
-## Regras antes de começar
+## Caminho padrão: instalador automático (use sempre primeiro)
+
+Existe um instalador pronto que faz tudo sozinho. Ele confere cada item: se já estiver instalado, só avisa **"ja esta instalado"**; se faltar, instala. No fim mostra um resumo. Pode rodar quantas vezes quiser, porque não reinstala nada.
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/rafadsiaducki/ConselheirodofuturoTools/main/instalar-kit.ps1 | iex
+```
+
+**macOS / Linux (Terminal):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/rafadsiaducki/ConselheirodofuturoTools/main/instalar-kit.sh | bash
+```
+
+Como agir:
+1. **Se você tem um shell na máquina da pessoa** (Bash do Claude Code, `device_bash` etc.), avise em uma frase o que vai instalar e rode o comando do sistema dela. No Claude Code para Windows, o shell é Git Bash, então rode: `powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/rafadsiaducki/ConselheirodofuturoTools/main/instalar-kit.ps1 | iex"`. Use um timeout longo (o Whisper leva alguns minutos).
+2. **Se não tem shell**, mande **apenas** a linha do sistema da pessoa, com uma instrução curta de onde colar (Windows: Win + X → Terminal). Não mande os passos manuais.
+3. Leia o **RESUMO** no final. Se estiver tudo OK, diga em uma frase que está pronto e que é preciso reabrir o Claude Code. Se algum item der ERRO, resolva só esse item usando os passos manuais abaixo.
+
+Os passos manuais abaixo servem só como **plano B** (o instalador falhou num item, a pessoa usa outro agente além do Claude ou quer entender o que está sendo instalado).
+
+---
+
+## Regras antes de começar (modo manual)
 
 1. **Onde rodar:** os comandos rodam no terminal do computador da pessoa. Se você tem um shell nessa máquina (por exemplo `device_bash` ou o Bash do Claude Code), rode você mesmo. Se não tem, entregue os comandos em blocos prontos para copiar e colar, um passo por vez, e peça para a pessoa colar a saída.
 2. **Peça confirmação uma vez** antes de instalar programas no sistema (winget/brew/apt). Mostre a lista do que falta instalar e o tamanho aproximado (o Whisper com PyTorch para CPU fica em torno de 1 GB; com a versão para GPU NVIDIA passa de 2 GB).

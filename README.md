@@ -67,6 +67,7 @@ Abra o Claude Code e peça:
 |---|---|
 | Algum item com `ERRO` no resumo | Feche o Terminal, abra de novo e rode o mesmo comando. Ele continua de onde parou. |
 | `winget nao existe` (Windows) | Instale o **App Installer** pela Microsoft Store e rode de novo. |
+| Whisper com `CERTIFICATE_VERIFY_FAILED` / `self-signed certificate` | Antivírus ou firewall da empresa inspecionando HTTPS. Rode `python -m pip install --use-feature=truststore -U pip` e depois o instalador de novo. Se continuar, peça ao TI para liberar `pypi.org`, `files.pythonhosted.org` e `download.pytorch.org`. |
 | `npx não é reconhecido` | Feche e abra o Terminal (o Node.js acabou de ser instalado) e rode de novo. |
 | Continua dando erro | Tire um print do resumo e mande para o Claude: ele resolve o item que falhou. |
 

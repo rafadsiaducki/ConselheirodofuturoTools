@@ -80,10 +80,27 @@ if (Test-Whisper) { Say 'OK' 'Whisper - ja esta instalado' Green; Add-Res 'Whisp
 elseif (-not (Test-Python)) { Say 'ERRO' 'Whisper - precisa do Python (falhou acima).' Red; Add-Res 'Whisper' 'ERRO: sem Python' }
 else {
     Say '..' 'Whisper - instalando (cerca de 1 GB, leva alguns minutos)...' Yellow
+    # Atualiza o pip. Se a rede tiver inspecao HTTPS (antivirus ou firewall da empresa),
+    # o pip antigo falha com CERTIFICATE_VERIFY_FAILED; o --use-feature=truststore faz ele
+    # usar os certificados do Windows. O pip 24.2+ ja faz isso sozinho.
     python -m pip install -q -U pip 2>&1 | Out-Null
-    python -m pip install -q -U openai-whisper --extra-index-url https://download.pytorch.org/whl/cpu 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) { python -m pip install -q -U pip --use-feature=truststore 2>&1 | Out-Null }
+    $pipOut = python -m pip install -U openai-whisper --extra-index-url https://download.pytorch.org/whl/cpu 2>&1 | Out-String
+    if (-not (Test-Whisper)) {
+        $pipOut = python -m pip install -U openai-whisper --extra-index-url https://download.pytorch.org/whl/cpu --use-feature=truststore 2>&1 | Out-String
+    }
     if (Test-Whisper) { Say 'OK' 'Whisper - instalado' Green; Add-Res 'Whisper' 'instalado agora' }
-    else { Say 'ERRO' 'Whisper - falhou. Rode: python -m pip install openai-whisper' Red; Add-Res 'Whisper' 'ERRO' }
+    elseif ($pipOut -match 'CERTIFICATE_VERIFY_FAILED|SSLError') {
+        Say 'ERRO' 'Whisper - a rede bloqueou o download (inspecao HTTPS de antivirus ou firewall).' Red
+        Write-Host '       Peca ao TI para liberar pypi.org, files.pythonhosted.org e download.pytorch.org,'
+        Write-Host '       ou desative a verificacao HTTPS do antivirus so durante a instalacao.'
+        Add-Res 'Whisper' 'ERRO: certificado da rede (ver acima)'
+    }
+    else {
+        Say 'ERRO' 'Whisper - falhou. Ultimas linhas:' Red
+        ($pipOut -split "`n" | Where-Object { $_.Trim() } | Select-Object -Last 6) | ForEach-Object { Write-Host "       $_" }
+        Add-Res 'Whisper' 'ERRO (ver mensagem acima)'
+    }
 }
 # Garante que o comando "whisper" funcione no terminal
 if ((Test-Whisper) -and -not (Has whisper)) {
